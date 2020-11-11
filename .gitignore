@@ -1,0 +1,21 @@
+# Dependency directories
+node_modules/
+
+# Dist directory
+dist
+
+# Yarn & Npm
+yarn.lock
+yarn-debug.log*
+yarn-error.log*
+npm-debug.log*
+package-lock.json
+
+# Vscode file
+.vscode
+
+# Optional eslint cache
+.eslintcache
+
+# Mcpack local config
+mcpack-local.config.js
