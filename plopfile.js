@@ -2,7 +2,7 @@ var fs = require('fs')
 var path = require('path')
 var initMessage = require('./bin/plop-init.js')
 
-module.exports = plop => {
+module.exports = function (plop) {
   initMessage()
   plop.setGenerator('component', {
     description: 'create a component',

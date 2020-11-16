@@ -83,24 +83,19 @@
       validate () {
         if (!this.composingDate) {
           error('请选择统计周期')
-          return false
+          return
         }
 
-        const isBefore = this.composingDate ? dayjs(this.composingDate).isAfter(new Date()) : ''
-        if (isBefore) {
-          error('不允许建立后期xxx')
-          return false
-        }
+        // const isBefore = this.composingDate ? dayjs(this.composingDate).isAfter(new Date()) : ''
+        // if (isBefore) {
+        //   error('不允许建立后期xxx')
+        //   return
+        // }
 
         const d = dayjs(this.composingDate)
         const year = d.get('year')
         const month = d.get('month') + 1
-
-        const item = this.items.find(el =>
-          (el.year > year) ||
-          (el.year === year && el.month >= month)
-        )
-        if (item) error('所选月份需要晚于已经存在的期间统计。')
+        
         const composingItemExists = this.items.some(el => el.status !== 'done')
         if (composingItemExists) error('存在xxxx，不允许新增')
         return (item || composingItemExists) ? false : { year, month }

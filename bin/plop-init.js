@@ -3,8 +3,8 @@ var pkg = require('../package.json')
 module.exports = function initMessage () {
   console.info(
     `${chalk.green(
-      'Welcome to the Modern Project Generator version',
+      'Welcome to the creatmc',
       pkg.version + '!'
-    )} Please start by selecting a project generator below:`
+    )} Please enter ${chalk.green('creatmc')} in root directory project`
   )
 }

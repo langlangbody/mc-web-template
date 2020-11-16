@@ -1,6 +1,6 @@
 const state = {
   permissions:[],
-  activeItem: null,
+  activeItem: {},
   items: []
 }
 
@@ -11,7 +11,7 @@ const mutations = {
   SET_ITEMS: (state, params) => {
     state.items = param
   },
-  SET_ACTIVE_ITEM: (state, params) => {
+  SET_ACTIVE_ITEM: (state, params = {}) => {
     state.activeItem = param
   }
 }
@@ -44,15 +44,12 @@ const actions = {
     //   return true
     // })
   },
-  removeItem ({ commit }) {
+  deleteItem ({ commit }) {
     // return this.$http.delete({
     //   url: `${baseUrlGen(this)}/roots`
     // }).then(res => {
-    //   return true
+    //   return res ? true : false
     // })
-  },
-  setActiveItem({ commit }, params) {
-    commit('SET_ACTIVE_ITEM', params)
   }
 }
 

@@ -1,5 +1,5 @@
 <template>
-  <kaka-grid :columns="columns" :records="inferredCosts" />
+  <kaka-grid :columns="columns" :records="items" />
 </template>
 <script>
   import Vuex from 'vuex'
@@ -42,7 +42,11 @@
           return state.items
         }
       }),
-      ...mapGetters(['editPermission']),
+      ...mapGetters(['editPermission','activeItem']),
+      disabled(){
+        // 此处是对状态的条件判断  是更具当前的账单状态进行授权
+        return this.editPermission && activeItem.state
+      }
     },
     methods: {
       async viewDetail (rec) {
@@ -57,6 +61,7 @@
           if (btn === 'ok') {
             const { dispatch } = this.$store
             if (await dispatch('deleteProduction', rec.id)) {
+              // 删除成功后重新获取列表
               dispatch('root/loadItems')
               notify('success', '删除成功')
             }

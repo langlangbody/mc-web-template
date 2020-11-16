@@ -14,7 +14,7 @@
           <mu-dropdown-item
             label="删除"
             icon-class="ipm-icon-trash-can"
-            @click="remove" />
+            @click="delete" />
         </template>
       </mu-dropdown-button>
     </mu-bar>
@@ -32,7 +32,7 @@
   import DetailForm from './form.vue'
   import DetailTabs from './detail-tabs.vue'
 
-  // 状态映射
+  // TODO:状态映射
   const StatusEnum = {
     done: '已完成',
     composing: '编制中',
@@ -77,14 +77,14 @@
       }
     },
     methods: {
-      async remove () {
+      async delete () {
         confirm('是否删除本期统计', async btn => {
           if (btn === 'ok') {
             const { dispatch, commit } = this.$store
-            if (await dispatch('removeItem')) {
+            if (await dispatch('deleteItem')) {
               dispatch('root/loadItems')
               this.application.routerGoIndex(0)
-              commit('root/setActiveItem',null)
+              commit('root/SET_ACTIVE_ITEM')
             }
           }
         })

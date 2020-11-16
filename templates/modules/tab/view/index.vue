@@ -5,8 +5,6 @@
 </template>
 
 <script>
-
-  // generateTemplate
   import VueRouter from 'vue-router'
 
   import MainView from './main-view/index.vue'

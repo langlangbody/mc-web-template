@@ -4,7 +4,7 @@
   "description": "mc项目模板生成工具",
   "main": "index.js",
   "bin": {
-    "creatmc": "./bin/index.js"
+    "creatmc": "./bin/cli.js"
   },
   "scripts": {
     "creat": "plop",
