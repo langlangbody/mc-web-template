@@ -5,7 +5,7 @@ var initMessage = require('./bin/plop-init.js')
 module.exports = function (plop) {
   initMessage()
   plop.setGenerator('component', {
-    description: 'create a component',
+    description: 'create a Template',
     prompts: [
       {
         type: 'input',
@@ -15,26 +15,24 @@ module.exports = function (plop) {
       {
         type: 'list',
         name: 'temp',
-        default: 'tabs',
+        default: 'tab',
         choices: [
-          { name: '主细表类型（带tab页签）', value: 'tab' },
-          { name: '主细表类型（不带tab页签）', value: 'noTab' },
-          { name: '普通组件', value: 'common' }
+          { name: '主细表类型（带页签模板）', value: 'tab' }
+          // { name: '主细表类型（不带页签）', value: 'noTab' }
         ]
       }
     ],
-    actions: (data) => {
+    actions: function (data) {
       var gen = `${plop.getPlopfilePath()}/templates`
-      console.log('data', data)
       var dirName = data.dirName
       var temp = data.temp
-      var actions = []
-      var modify = []
+      var modules = []
+      var server = []
       var cwd = process.cwd()
       var startingPath = ''
       var startingTemplatePath = path.resolve(`${gen}/modules/${temp}`)
       switch (temp) {
-        case 'common':
+        case 'other':
           startingPath = `${cwd}/src/web-content/component/${dirName}`
           break
         default:
@@ -51,8 +49,8 @@ module.exports = function (plop) {
               path: `${path1}/${file}`,
               templateFile: `${templateDir}/${file}`
             }
-            actions.push(action)
-            modify.push({
+            modules.push(action)
+            modules.push({
               type: 'modify',
               path: `${path1}/${file}`,
               transform (fileContents, data) {
@@ -66,23 +64,12 @@ module.exports = function (plop) {
         })
         return actions
       }
-      actions = recursiveFiles(startingPath, startingTemplatePath)
-
-      actions.push({
-        type: 'add',
-        path: `${cwd}/src/server/${dirName}/index.js`,
-        templateFile: path.resolve(`${gen}/server/index.js`),
-        skipIfExists: true,
-        abortOnFail: true
-      })
-      modify.push({
-        type: 'modify',
-        path: `${cwd}/src/server/${dirName}/index.js`,
-        transform (fileContents, data) {
-          return fileContents.replace(/generateTemplate/g, dirName)
-        }
-      })
-      return [...actions, ...modify]
+      // 模块层actions
+      recursiveFiles(startingPath, startingTemplatePath)
+      // 服务层actions
+      recursiveFiles(`${cwd}/src/server/${dirName}`, path.resolve(`${gen}/server`))
+      var actions = [...modules, ...server]
+      return actions
     }
   })
 }
