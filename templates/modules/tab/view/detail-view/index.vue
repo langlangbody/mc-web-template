@@ -9,12 +9,12 @@
       <mu-button
         :caption="formVisible ? '折叠' : '展开'"
         @click="formVisible = !formVisible" />
-      <mu-dropdown-button caption="更多" :disabled="!editPermission">
+      <mu-dropdown-button caption="更多" :disabled="!disabled">
         <template #dropdown>
           <mu-dropdown-item
             label="删除"
             icon-class="ipm-icon-trash-can"
-            @click="delete" />
+            @click="deleteItem" />
         </template>
       </mu-dropdown-button>
     </mu-bar>
@@ -25,9 +25,8 @@
 
 <script>
   import dayjs from 'dayjs'
-  import Vuex from 'vuex'
   import { confirm } from 'mussel'
-  import { mapState, mapGetters } from 'vuex'
+  import { mapGetters } from 'vuex'
 
   import DetailForm from './form.vue'
   import DetailTabs from './detail-tabs.vue'
@@ -36,7 +35,7 @@
   const StatusEnum = {
     done: '已完成',
     composing: '编制中',
-    other: 'compile'
+    other: '请稍等'
   }
 
   export default {
@@ -45,8 +44,8 @@
       DetailForm,
       DetailTabs
     },
-    data (){
-      return{
+    data () {
+      return {
         formVisible: true
       }
     },
@@ -59,6 +58,10 @@
       status () {
         const status = this.activeItem?.status
         return StatusEnum[status]
+      },
+      disabled () {
+        // 此处是对状态的条件判断  是更具当前的账单状态进行授权
+        return true // this.editPermission && this.activeItem.state
       }
     },
     beforeRouteLeave (to, from, next) {
@@ -77,11 +80,12 @@
       }
     },
     methods: {
-      async delete () {
+      async deleteItem () {
         confirm('是否删除本期统计', async btn => {
           if (btn === 'ok') {
             const { dispatch, commit } = this.$store
-            if (await dispatch('deleteItem')) {
+            const status = await dispatch('deleteItem')
+            if (status) {
               dispatch('root/loadItems')
               this.application.routerGoIndex(0)
               commit('root/SET_ACTIVE_ITEM')

@@ -1,7 +1,7 @@
 import { fixedNumber } from '@mctech/biz-data-utils'
-import BaseTreePanel from './base-tree-panel.vue'
+import BaseTreePanel from '../../base-tree-panel.vue'
 
-const { fixedQuantity, fixedAmount } = fixedNumber
+const { fixedQuantity } = fixedNumber
 
 export default {
   tabName: '标签1',
@@ -36,12 +36,6 @@ export default {
           width: 'm'
         }
       ]
-    }
-  },
-
-  computed: {
-    records () {
-      return this.$store.state.labor.items
     }
   },
   methods: {

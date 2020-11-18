@@ -1,10 +1,8 @@
-var modulesFiles = require.context('./api', true, /\.js$/)
-var modules = modulesFiles.keys().reduce(function (modules, modulePath) {
-  var moduleName = modulePath.replace(/^\.\/(.*)\.\w+$/, '$1')
-  var value = modulesFiles(modulePath)
-  modules[moduleName] = value.default
-  return modules
-}, {})
+const home = require('./api/home')
+const tab1 = require('./api/tab1')
+const tab2 = require('./api/tab2')
 module.exports = [
-  ...modules
+  ...home,
+  ...tab1,
+  ...tab2
 ]

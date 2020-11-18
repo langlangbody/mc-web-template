@@ -7,12 +7,6 @@
     @activated="initialize">
     <mu-bar>
       <mu-button
-        :disabled="!editable || editing"
-        :caption="$options.selectCaption"
-        button-type="primary"
-        button-style="outline"
-        @click="selectProcedure" />
-      <mu-button
         v-if="editing"
         caption="删除"
         button-type="danger"
@@ -42,41 +36,40 @@
       </template>
     </mu-bar>
     <kaka-grid
-      v-if="loaded"
       ref="grid"
       size="1"
       :frozen-col-count="3"
       :columns="columns"
       :records="editingRecords"
       @cellchange="cellchange" />
-    <dlg-select-item v-model="showSelectDlg" />
   </mu-tab-panel>
 </template>
 <script>
 
   import cloneDeep from 'lodash.clonedeep'
   import { warn, notify } from 'mussel'
-  import { fixedNumber } from '@mctech/biz-data-utils'
+  import { mapState, mapGetters } from 'vuex'
 
-  const { fixedQuantity } = fixedNumber
   export default {
     inject: ['context'],
     data () {
       return {
-        editing: false,
-        loaded: false,
+        editing: false, // 编辑状态
         showSelectDlg: false,
-        updatedItems: [],
-        deletedItems: [],
-        editingRecords: []
+        updatedItems: [], // 更新项
+        deletedItems: [], // 删除项
+        editingRecords: [] // 操作数据--> 拷贝原数据而来
       }
     },
     computed: {
-      records () {
-        return this.$store.state[this.$options.namespace].items
-      },
+      ...mapGetters(['activeItem', 'editPermission']),
+      ...mapState({
+        records (state) {
+          return state[this.$options.namespace]?.items || []
+        }
+      }),
       editable () {
-        return this.activeInferredCost.status !== 'done' && this.context.editable
+        return true // TODO：  this.activeItem?.status !== 'done' && this.editPermission
       },
       notchanged () {
         return this.updatedItems.length === 0 &&
@@ -94,9 +87,6 @@
           return map
         }, {})
       },
-      activeInferredCost () {
-        return this.$store.state.activeInferredCost
-      },
       showWarnBox () {
         return this.$store.state.showWarnBox
       }
@@ -104,39 +94,38 @@
     watch: {
       records () {
         this.init()
-        this.editing = false
-      },
-      editing (newVal) {
-        if (newVal) {
-          this.$store.commit('setEditingItem', { editing: newVal, name: this.$options.tabName })
-        } else {
-          this.$store.commit('setEditingItem', { editing: false, name: null })
-        }
-      },
-      showWarnBox (newVal) {
-        if (newVal) {
-          this.$store.commit('setWarnBoxState', false)
-          this.cancel()
-        }
       }
     },
     methods: {
-      selectProcedure () {
-        this.showSelectDlg = true
-      },
       async load () {
-        this.$store.dispatch(`${this.$options.namespace}/getItems`, this.activeInferredCost.id)
+        this.$store.dispatch(`${this.$options.namespace}/loadItems`, this.activeItem.id)
       },
       async initialize () {
-        if (!this.records) {
-          await this.load()
-          this.loaded = true
-        }
+        this.load()
       },
       init () {
         this.editingRecords = cloneDeep(this.records)
         this.updatedItems = []
         this.deletedItems = []
+      },
+      async save () {
+        const result = await this.$store.dispatch(`${this.$options.namespace}/save`, {
+          updatedItems: this.updatedItems,
+          deletedItems: this.deletedItems,
+          inferredCostId: this.activeItem.id
+        })
+        if (result) {
+          notify('success', '保存成功')
+          this.$store.commit(`${this.$options.namespace}/setItems`, this.editingRecords)
+          const inferredCost = await this.$store.dispatch('getItem', this.activeItem.id)
+          if (inferredCost) {
+            this.$store.commit('updateActiveItem', inferredCost)
+          }
+        }
+      },
+      startEditing () {
+        this.editing = true
+        this.$refs.grid.invalidate()
       },
       async removeItem () {
         const items = this.$refs.grid.getSelectedRecords()
@@ -145,25 +134,6 @@
         this.editingRecords = this.editingRecords.filter(
           v => !this.deletedItemMap[v.id]
         )
-      },
-      startEditing () {
-        this.editing = true
-        this.$refs.grid.invalidate()
-      },
-      async save () {
-        const result = await this.$store.dispatch(`${this.$options.namespace}/save`, {
-          updatedItems: this.updatedItems,
-          deletedItems: this.deletedItems,
-          inferredCostId: this.activeInferredCost.id
-        })
-        if (result) {
-          notify('success', '保存成功')
-          this.$store.commit(`${this.$options.namespace}/setItems`, this.editingRecords)
-          const inferredCost = await this.$store.dispatch('getItem', this.activeInferredCost.id)
-          if (inferredCost) {
-            this.$store.commit('updateActiveItem', inferredCost)
-          }
-        }
       },
       cancel () {
         warn('是否取消修改？', btn => {
@@ -180,11 +150,9 @@
           record[field] = oldValue
           return
         }
-        record[field] = fixedQuantity(value)
         if (!this.updatedItemMap[record.id]) {
           this.updatedItems.push(record)
         }
-        this.doRelatedChanges(record, field, oldValue)
       }
     }
   }

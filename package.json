@@ -1,6 +1,6 @@
 {
   "name": "mc-web-template",
-  "version": "1.0.0",
+  "version": "0.7.9",
   "description": "mc项目模板生成工具",
   "main": "index.js",
   "bin": {

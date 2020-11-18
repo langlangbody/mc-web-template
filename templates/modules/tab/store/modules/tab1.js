@@ -5,20 +5,19 @@ const state = {
 }
 
 const mutations = {
-  SET_ITEMS: (state, params) => {
-    state.items = param
+  SET_ITEMS: (states, params) => {
+    states.items = params
   }
 }
 
 const actions = {
   loadItems ({ commit }, params) {
-    // return this.$http.get({
-    //   url: `${baseUrlGen(this)}/tab1`,
-    //   params: params
-    // }).then(res => {
-    //   commit('SET_ITEMS', res)
-    //   return true
-    // })
+    return this.$http.get({
+      url: `${baseUrlGen(this)}/params/tab1`,
+      params: params
+    }).then(res => {
+      commit('SET_ITEMS', res)
+    })
   }
 }
 

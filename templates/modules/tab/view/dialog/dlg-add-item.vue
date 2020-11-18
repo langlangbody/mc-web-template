@@ -34,7 +34,7 @@
    * @description 新增弹窗
    */
   export default {
-    name:"dlgAddItem",
+    name: 'DlgAddItem',
     model: {
       prop: 'visible',
       event: 'change'
@@ -86,23 +86,24 @@
           return
         }
 
-        // const isBefore = this.composingDate ? dayjs(this.composingDate).isAfter(new Date()) : ''
-        // if (isBefore) {
-        //   error('不允许建立后期xxx')
-        //   return
-        // }
+        const isBefore = this.composingDate ? dayjs(this.composingDate).isAfter(new Date()) : ''
+        if (isBefore) {
+          error('不允许建立后期xxx')
+          return
+        }
 
         const d = dayjs(this.composingDate)
         const year = d.get('year')
         const month = d.get('month') + 1
-        
-        const composingItemExists = this.items.some(el => el.status !== 'done')
-        if (composingItemExists) error('存在xxxx，不允许新增')
-        return (item || composingItemExists) ? false : { year, month }
+
+        // const composingItemExists = this.items.some(el => el.status !== 'done')
+        // if (composingItemExists) error('存在xxxx，不允许新增')
+        // return composingItemExists ? false : { year, month }
+        return { year, month }
       },
       async save () {
         const { year, month } = Object(this.validate())
-        const { dispatch, commit } = this.$store
+        const { dispatch } = this.$store
         this.invalid = !year
         if (year) {
           const id = await dispatch('root/addItem', { year, month })

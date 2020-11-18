@@ -1,4 +1,4 @@
-const { iEcoService } = require('../rpc-services')
+const { iEcoService } = require('../../rpc-services')
 
 const client = require('@mctech/infra-cloud').getRpcClient()
 
